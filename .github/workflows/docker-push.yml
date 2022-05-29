@@ -96,4 +96,5 @@ jobs:
           webhook_url: ${{ secrets.WEBHOOK_DEPLOY_URL }}
           webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
           data: '{"event_type": "deploy_yandex_dialogs"}'
+          verbose: true
 
