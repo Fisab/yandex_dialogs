@@ -91,9 +91,7 @@ jobs:
         run: cosign sign ${{ steps.meta.outputs.tags }}@${{ steps.build-and-push.outputs.digest }}
 
       - name: Trigger deploy
-        uses: enflo/curl-action@v1.2
-        with:
-          curl: |-
-            --request POST --url '${{ secrets.WEBHOOK_DEPLOY_URL }}' \
+        run: |
+            curl --request POST --url '${{ secrets.WEBHOOK_DEPLOY_URL }}' \
             --header 'authorization: Bearer ${{ secrets.WEBHOOK_SECRET }}' \
             --data '{"event_type": "deploy_yandex_dialogs"}'
