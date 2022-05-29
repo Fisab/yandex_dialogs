@@ -93,8 +93,4 @@ jobs:
       - name: Trigger deploy
         uses: wei/curl@v1
         with:
-          args: |-
-            --request POST \
-            --url '${{ secrets.WEBHOOK_DEPLOY_URL }}' \
-            --header 'authorization: Bearer ${{ secrets.WEBHOOK_SECRET }}' \
-            --data '{"event_type": "deploy_yandex_dialogs"}'
+          args: "--request POST --url '${{ secrets.WEBHOOK_DEPLOY_URL }}' --header 'authorization: Bearer ${{ secrets.WEBHOOK_SECRET }}' --data '{\"event_type\": \"deploy_yandex_dialogs\"}'"
