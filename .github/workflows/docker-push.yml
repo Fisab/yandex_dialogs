@@ -89,3 +89,11 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: cosign sign ${{ steps.meta.outputs.tags }}@${{ steps.build-and-push.outputs.digest }}
+
+      - name: Trigger deploy
+        uses: distributhor/workflow-webhook@v2.0.3
+        env:
+          webhook_url: ${{ secrets.WEBHOOK_DEPLOY_URL }}
+          webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
+          data: '{"event_type": "deploy_yandex_dialogs"}'
+
