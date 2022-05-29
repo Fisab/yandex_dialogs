@@ -90,7 +90,7 @@ jobs:
         # against the sigstore community Fulcio instance.
         run: cosign sign ${{ steps.meta.outputs.tags }}@${{ steps.build-and-push.outputs.digest }}
 
-      - name: Trigger deploy
-        uses: wei/curl@v1
+      - name: CURL-ACTION
+        uses: enflo/curl-action@v1.2
         with:
-          args: "--request POST --url '${{ secrets.WEBHOOK_DEPLOY_URL }}' --header 'authorization: Bearer ${{ secrets.WEBHOOK_SECRET }}' --data '{\"event_type\": \"deploy_yandex_dialogs\"}'"
+          curl: "--request POST --url '${{ secrets.WEBHOOK_DEPLOY_URL }}' --header 'authorization: Bearer ${{ secrets.WEBHOOK_SECRET }}' --data '{\"event_type\": \"deploy_yandex_dialogs\"}'"
