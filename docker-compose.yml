@@ -1,0 +1,9 @@
+version: '3.9'
+services:
+  yandex_dialogs:
+    build: .
+    ports:
+      - '8080:80'
+    volumes:
+      - ./config.yml:/app/config.yml:ro
+    restart: always

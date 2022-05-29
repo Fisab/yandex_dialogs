@@ -1,4 +1,4 @@
-from yandex_dialogs import __version__
+from food_app import __version__
 
 
 def test_version():
