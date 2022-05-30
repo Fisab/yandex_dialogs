@@ -1,12 +1,10 @@
 import aiohttp
-from food_app.service.config import get_config
-from food_app.models.config import Config
-from fastapi import Depends
+from utils.config import get_config
 from furl import furl
 from typing import Optional
 
 
-config = get_config(part='papa_johns')
+config = get_config(root='food_app', part='papa_johns')
 
 
 async def _query(

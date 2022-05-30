@@ -14,5 +14,14 @@ class PapaJohns(BaseModel):
     location: list[str]
 
 
-class Config(BaseModel):
+class SuperApp(BaseModel):
+    root_path: str
+
+
+class PapaJohnsRoot(BaseModel):
     papa_johns: PapaJohns
+
+
+class Config(BaseModel):
+    food_app: PapaJohnsRoot
+    super_app: SuperApp
