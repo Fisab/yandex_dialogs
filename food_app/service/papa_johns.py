@@ -29,7 +29,7 @@ class PapaJohns:
             async with session.request(method, url.tostr(), json=json) as response:
                 return await response.json()
 
-    @cached(TTLCache(maxsize=128, ttl=_config.ttl_unauthorized_token))
+    @cached(TTLCache(maxsize=128, ttl=_config.ttl.unauthorized_token))
     async def init_cart(self) -> str:
         url = furl(self.config.url) / '/cart/add'
         json = {
@@ -58,10 +58,12 @@ class PapaJohns:
         response = await self._query(url)
         return [row.get('good') for row in response]
 
+    @cached(TTLCache(maxsize=128, ttl=_config.ttl.goods_check))
     async def check_goods_in_stock(self, good_id: int) -> bool:
         goods_out_of_stock = await self.get_goods_out_of_stock()
         return good_id not in goods_out_of_stock
 
+    @cached(TTLCache(maxsize=128, ttl=_config.ttl.delivery_time))
     async def get_delivery_time(self) -> str:
         """
         :return: примерное время доставки

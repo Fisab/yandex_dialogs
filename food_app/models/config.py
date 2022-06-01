@@ -6,9 +6,15 @@ class Goods2Check(BaseModel):
     tokens: list[str]
 
 
+class TTLInfo(BaseModel):
+    unauthorized_token: int
+    goods_check: int
+    delivery_time: int
+
+
 class PapaJohns(BaseModel):
     url: str
-    ttl_unauthorized_token: int
+    ttl: TTLInfo
     goods_to_check: dict[int, Goods2Check]
     restaurant_id: int
     city_id: int
