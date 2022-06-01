@@ -1,15 +1,34 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from food_app.service import papa_johns
+from food_app.service.papa_johns import papa_johns, PapaJohns
+from food_app.models.yandex_dialogs import AliceRequest, AliceResponse, ResponsePart
+from food_app.models.internal import DeliveryTime, GoodsOutOfStock
 
 router = APIRouter()
 
 
-@router.get('/sauce_exists', tags=['main'])
-async def check_sauce_exists():
-    return {'exists': await papa_johns.check_sauce_exists()}
+@router.get('/goods_out_of_stock', tags=['main'], response_model=GoodsOutOfStock)
+async def check_sauce_exists(papa_johns_client: PapaJohns = Depends(papa_johns)):
+    result = await papa_johns_client.get_goods_out_of_stock()
+    return GoodsOutOfStock(doesnt_exists=result)
 
 
-@router.get('/delivery_time', tags=['main'])
-async def delivery_time():
-    return {'delivery_time': await papa_johns.get_delivery_time()}
+@router.get('/delivery_time', tags=['main'], response_model=DeliveryTime)
+async def delivery_time(papa_johns_client: PapaJohns = Depends(papa_johns)):
+    result = await papa_johns_client.get_delivery_time()
+    return DeliveryTime(delivery_time=result)
+
+
+@router.post('/papa_johns', tags=['alice'], response_model=AliceResponse)
+async def alice(
+    request: dict, papa_johns_client: PapaJohns = Depends(papa_johns)
+):
+    print(request)
+    request = AliceRequest(**request)
+    await papa_johns_client.get_goods_out_of_stock()
+    answer = await papa_johns_client.get_answer(request.request.nlu.tokens)
+    return AliceResponse(
+        version=request.version,
+        session_id=request.session.session_id,
+        response=ResponsePart(text=answer, end_session=True),
+    )

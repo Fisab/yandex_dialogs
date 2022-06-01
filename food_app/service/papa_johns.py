@@ -2,60 +2,96 @@ import aiohttp
 from utils.config import get_config
 from furl import furl
 from typing import Optional
+from asyncache import cached
+from cachetools import TTLCache
 
 
-config = get_config(root='food_app', part='papa_johns')
+_obj = None
+_config = get_config(root='food_app', part='papa_johns')
 
 
-async def _query(
-    url: furl, method: Optional[str] = 'GET', json: Optional[dict] = None
-) -> dict:
-    async with aiohttp.ClientSession() as session:
-        async with session.request(method, url.tostr(), json=json) as response:
-            return await response.json()
+def papa_johns() -> 'PapaJohns':
+    global _obj
+    if not _obj:
+        _obj = PapaJohns()
+    return _obj
 
 
-async def init_cart() -> str:
-    url = furl(config.url) / '/cart/add'
-    json = {
-        'city_id': config.city_id,
-        'composition': [
-            {'good_id': good.id, 'ingredients': [], 'type': 'good'}
-            for good in config.goods_to_check
-        ],
-    }
-    response = await _query(url, method='POST', json=json)
-    return response.get('unauthorized_token')
+class PapaJohns:
+    def __init__(self):
+        self.config = _config
 
+    @staticmethod
+    async def _query(
+        url: furl, method: Optional[str] = 'GET', json: Optional[dict] = None
+    ) -> dict:
+        async with aiohttp.ClientSession() as session:
+            async with session.request(method, url.tostr(), json=json) as response:
+                return await response.json()
 
-async def check_sauce_exists() -> list[int]:
-    """
-    :return: массив из id отсутствующих товаров в корзине
-    """
-    unauthorized_token = await init_cart()
-    url = furl(config.url) / '/cart/stop-list'
-    url.add(
-        {
-            'city_id': config.city_id,
-            'restaurant_id': config.restaurant_id,
-            'unauthorized_token': unauthorized_token,
+    @cached(TTLCache(maxsize=128, ttl=_config.ttl_unauthorized_token))
+    async def init_cart(self) -> str:
+        url = furl(self.config.url) / '/cart/add'
+        json = {
+            'city_id': self.config.city_id,
+            'composition': [
+                {'good_id': good_id, 'ingredients': [], 'type': 'good'}
+                for good_id in self.config.goods_to_check
+            ],
         }
-    )
-    response = await _query(url)
-    return [row.get('good') for row in response]
+        response = await self._query(url, method='POST', json=json)
+        return response.get('unauthorized_token')
 
+    async def get_goods_out_of_stock(self) -> list[int]:
+        """
+        :return: массив из id отсутствующих товаров в корзине
+        """
+        unauthorized_token = await self.init_cart()
+        url = furl(self.config.url) / '/cart/stop-list'
+        url.add(
+            {
+                'city_id': self.config.city_id,
+                'restaurant_id': self.config.restaurant_id,
+                'unauthorized_token': unauthorized_token,
+            }
+        )
+        response = await self._query(url)
+        return [row.get('good') for row in response]
 
-async def get_delivery_time():
-    """
-    :return: примерное время доставки
-    """
-    url = furl(config.url) / '/restaurant/delivery-time'
-    url.add(
-        {
-            'city_id': config.city_id,
-            'restaurant_id': config.restaurant_id,
-            'address_coordinates': f'[{",".join(config.location)}]',
-        }
-    )
-    response = await _query(url)
-    return response.get('delivery_time')
+    async def check_goods_in_stock(self, good_id: int) -> bool:
+        goods_out_of_stock = await self.get_goods_out_of_stock()
+        return good_id not in goods_out_of_stock
+
+    async def get_delivery_time(self) -> str:
+        """
+        :return: примерное время доставки
+        """
+        url = furl(self.config.url) / '/restaurant/delivery-time'
+        url.add(
+            {
+                'city_id': self.config.city_id,
+                'restaurant_id': self.config.restaurant_id,
+                'address_coordinates': f'[{",".join(self.config.location)}]',
+            }
+        )
+        response = await self._query(url)
+        return response.get('delivery_time')
+
+    def check_question_about_good(self, tokens: list[str]) -> Optional[int]:
+        for good_id in self.config.goods_to_check:
+            good = self.config.goods_to_check[good_id]
+            for good_token in good.tokens:
+                if good_token in tokens:
+                    return good_id
+
+    async def get_answer(self, tokens: list[str]) -> str:
+        good_id = self.check_question_about_good(tokens)
+
+        if good_id:
+            good_in_stock = await self.check_goods_in_stock(good_id)
+            return {True: 'Товар в наличии', False: 'Товар отсутствует'}.get(
+                good_in_stock
+            )
+
+        delivery_time = await self.get_delivery_time()
+        return f'Время доставки {delivery_time}'

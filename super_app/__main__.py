@@ -6,8 +6,11 @@ from utils.config import get_config
 
 def init_app() -> FastAPI:
     config = get_config(root='super_app')
-    app = FastAPI(root_path=config.root_path)
-    print(123, config.root_path)
+    app = FastAPI(
+        root_path=config.root_path,
+        root_path_in_servers=False,
+        swagger_ui_parameters={'defaultModelsExpandDepth': -1},
+    )
 
     app.mount('/food_app', food_app)
     app.include_router(health.router)
