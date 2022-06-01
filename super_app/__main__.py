@@ -7,6 +7,7 @@ from utils.config import get_config
 def init_app() -> FastAPI:
     config = get_config(root='super_app')
     app = FastAPI(
+        title='super_app',
         root_path=config.root_path,
         root_path_in_servers=False,
         swagger_ui_parameters={'defaultModelsExpandDepth': -1},
