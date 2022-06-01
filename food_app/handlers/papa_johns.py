@@ -21,10 +21,8 @@ async def delivery_time(papa_johns_client: PapaJohns = Depends(papa_johns)):
 
 @router.post('/papa_johns', tags=['alice'], response_model=AliceResponse)
 async def alice(
-    request: dict, papa_johns_client: PapaJohns = Depends(papa_johns)
+    request: AliceRequest, papa_johns_client: PapaJohns = Depends(papa_johns)
 ):
-    print(request)
-    request = AliceRequest(**request)
     await papa_johns_client.get_goods_out_of_stock()
     answer = await papa_johns_client.get_answer(request.request.nlu.tokens)
     return AliceResponse(
