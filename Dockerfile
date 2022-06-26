@@ -6,6 +6,7 @@ COPY requirements.txt ./
 
 COPY food_app ./food_app
 COPY super_app ./super_app
+COPY pixoo_app ./pixoo_app
 COPY utils ./utils
 
 RUN python3 -m pip install -r requirements.txt
