@@ -77,9 +77,17 @@ class PixooService:
         if 'заказ' in tokens:
             order = await self._delivery_club_client.get_last_order(active=True)
             if order:
+                if pendulum.parse(order.delivery.time) < pendulum.now():
+                    return (
+                        f'Заказ из {order.basket.vendor.name} {order.status.name.short} '
+                        f'опаздывает, время получать промокод'
+                    )
                 delivery_time = pendulum.parse(order.delivery.time) - pendulum.now()
                 await self.set_timer(delivery_time.in_minutes(), 0)
-                return f'Заказ из {order.basket.vendor.name} {order.status.name.short}, примерное время доставки {delivery_time.in_words(locale="ru")}'
+                return (
+                    f'Заказ из {order.basket.vendor.name} {order.status.name.short}, '
+                    f'примерное время доставки {delivery_time.in_words(locale="ru")}'
+                )
             return 'Активных заказов нету'
         elif 'яркость' in tokens:
             brightness = get_number_from_list(tokens)
