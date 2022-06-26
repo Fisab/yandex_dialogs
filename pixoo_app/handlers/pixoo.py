@@ -10,7 +10,6 @@ router = APIRouter()
 async def alice(
     request: AliceRequest, pixoo_client: PixooService = Depends(get_pixoo_client)
 ):
-    # await papa_johns_client.get_goods_out_of_stock()
     answer = await pixoo_client.get_answer(request.request.nlu.tokens)
     return AliceResponse(
         version=request.version,

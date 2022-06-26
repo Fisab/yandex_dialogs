@@ -73,8 +73,18 @@ class PixooService:
             url.args['clock_id'] = clock_id
         return await self._query('POST', url)
 
+    async def turn_screen(self, on: bool = True) -> aiohttp.ClientResponse:
+        url = furl(self._base_url) / '/screen/turn' / ('on' if on else 'off')
+        return await self._query('POST', url)
+
     async def get_answer(self, tokens: list[str]):
-        if 'заказ' in tokens:
+        if 'выключи' in tokens or 'выключить' in tokens:
+            await self.turn_screen(on=False)
+            return random.choice(done_phrases)
+        elif 'включи' in tokens or 'включить' in tokens:
+            await self.turn_screen(on=True)
+            return random.choice(done_phrases)
+        elif 'заказ' in tokens:
             order = await self._delivery_club_client.get_last_order(active=True)
             if order:
                 if pendulum.parse(order.delivery.time) < pendulum.now():
