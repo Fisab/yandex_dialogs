@@ -25,10 +25,24 @@ class SuperApp(BaseModel):
     root_path: str
 
 
-class PapaJohnsRoot(BaseModel):
+class DeliveryClub(BaseModel):
+    url: str
+    refresh_token: str
+    token: str
+    secret: str
+
+
+class FoodApp(BaseModel):
     papa_johns: PapaJohns
+    delivery_club: DeliveryClub
+
+
+class PixooApp(BaseModel):
+    token: str
+    url: str
 
 
 class Config(BaseModel):
-    food_app: PapaJohnsRoot
+    food_app: FoodApp
     super_app: SuperApp
+    pixoo_app: PixooApp

@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from food_app.handlers import health
 from food_app.__main__ import app as food_app
+from pixoo_app.__main__ import app as pixo_app
 from utils.config import get_config
 
 
@@ -14,7 +15,7 @@ def init_app() -> FastAPI:
     )
 
     app.mount('/food_app', food_app)
-    app.include_router(health.router)
+    app.mount('/pixoo_app', pixo_app)
 
     return app
 

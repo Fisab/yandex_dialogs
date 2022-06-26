@@ -1,14 +1,14 @@
 import yaml
 from typing import Optional, Union
 from food_app.service.exceptions import BadConfig
-from food_app.models.config import Config, PapaJohns, SuperApp
+from food_app.models.config import Config, PapaJohns, SuperApp, DeliveryClub, PixooApp
 
 config = None
 
 
 def get_config(
     root: str, config_name: str = 'config.yml', part: Optional[str] = None
-) -> Union[Config, PapaJohns, SuperApp]:
+) -> Union[Config, PapaJohns, SuperApp, DeliveryClub, PixooApp]:
     global config
     if config is None:
         with open(config_name, 'r') as stream:

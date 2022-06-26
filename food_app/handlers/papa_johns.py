@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
 from food_app.service.papa_johns import papa_johns, PapaJohns
-from food_app.models.yandex_dialogs import AliceRequest, AliceResponse, ResponsePart
-from food_app.models.internal import DeliveryTime, GoodsOutOfStock
+from super_app.models.yandex_dialogs import AliceRequest, AliceResponse, ResponsePart
+from super_app.models.internal import DeliveryTime, GoodsOutOfStock
 
 router = APIRouter()
 
