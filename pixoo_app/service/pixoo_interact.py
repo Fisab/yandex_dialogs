@@ -79,8 +79,8 @@ class PixooService:
             if order:
                 if pendulum.parse(order.delivery.time) < pendulum.now():
                     return (
-                        f'Заказ из {order.basket.vendor.name} {order.status.name.short} '
-                        f'опаздывает, время получать промокод'
+                        f'Заказ из {order.basket.vendor.name} {order.status.name.short},'
+                        f'но уже должен был быть доставлен, время получать промокод'
                     )
                 delivery_time = pendulum.parse(order.delivery.time) - pendulum.now()
                 await self.set_timer(delivery_time.in_minutes(), 0)
